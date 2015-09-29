@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e; set -o pipefail
 
+alias rm="rm --one-file-system --preserve-root"
 # Displays parameteters with command name prepended, outputted to stderr.
 # $@: message to display.
 function error()
