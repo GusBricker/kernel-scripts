@@ -50,7 +50,7 @@ check_exists debootstrap qemu-system-$target_arch qemu-$target_arch-static
 	fatal "can't find existing rootfs image"
 
 # So many commands need sudo, so just force the issue.
-elevate $@
+elevate "$@"
 
 chroot_script_path=$(which ${DIR}/kerndev-create-foreign.chroot.sh)
 

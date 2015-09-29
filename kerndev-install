@@ -41,7 +41,7 @@ rootfs_image_path=$KERNDEV_PATH/$rootfs
 [ ! -f $rootfs_image_path ] && \
 	fatal "can't find root fs image at $rootfs_image_path"
 
-elevate $@
+elevate "$@"
 
 push_linux
 

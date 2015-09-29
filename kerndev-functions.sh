@@ -5,7 +5,7 @@ set -e; set -o pipefail
 # $@: message to display.
 function error()
 {
-	echo $(basename $0): $@ >&2
+	echo $(basename $0): "$@" >&2
 }
 
 # Displays parameteters with command name prepended, outputted to stderr, then
@@ -13,7 +13,7 @@ function error()
 # $@: message to display.
 function fatal()
 {
-	error $@
+	error "$@"
 	exit 1
 }
 
@@ -49,7 +49,7 @@ function push_kerndev()
 function elevate()
 {
 	if [ $EUID != 0 ]; then
-		exec sudo -E $0 $@
+		exec sudo -E $0 "$@"
 		exit $?
 	fi
 }
@@ -96,7 +96,7 @@ function mak()
 {
 	[ -z $VERBOSE ] && out="null" || out="tty"
 
-	make $make_opts $@ >/dev/$out
+	make $make_opts "$@" >/dev/$out
 }
 
 # Determines if the argument is an command-line option.
@@ -137,11 +137,12 @@ function config()
 # Enable kernal settings $@...
 function kenable()
 {
-	config enable $@
+	config enable "$@"
 }
 
 # Disable kernal settings $@...
 function kdisable()
 {
-	config disable $@
+	config disable "$@"
+}
 }
