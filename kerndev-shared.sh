@@ -1,5 +1,6 @@
 #!/bin/bash
+
 set -e; set -o pipefail
 
-source kerndev-defaults.sh
-source kerndev-functions.sh
+source ${DIR}/kerndev-defaults.sh
+source ${DIR}/kerndev-functions.sh

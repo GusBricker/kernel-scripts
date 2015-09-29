@@ -1,5 +1,8 @@
 #!/bin/bash
-set -e; set -o pipefail; source kerndev-shared.sh
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+set -e; set -o pipefail; source ${DIR}/kerndev-shared.sh
 
 # Heavily based on PKGBUILD from
 # https://www.archlinux.org/packages/core/x86_64/linux/

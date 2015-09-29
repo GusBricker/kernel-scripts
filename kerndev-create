@@ -1,16 +1,19 @@
 #!/bin/bash
-set -e; set -o pipefail; source kerndev-shared.sh
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+set -e; set -o pipefail; source ${DIR}/kerndev-shared.sh
 
 # If an argument is provided, it specifies a cross-compile target architecture.
 target_arch=${1:-"x86_64"}
 
 case $target_arch in
 	"arm")
-		exec kerndev-create-foreign arm $@
+		exec ${DIR}/kerndev-create-foreign arm $@
 		exit $?
 		;;
 	"aarch64")
-		exec kerndev-create-foreign aarch64 $@
+		exec ${DIR}/kerndev-create-foreign aarch64 $@
 		exit $?
 		;;
 	"x86_64")
@@ -23,14 +26,13 @@ esac
 # Sanity checks.
 [ ! -f "/etc/arch-release" ] && \
 	fatal This script is designed for arch linux only, sorry!
-
-check_exists kerndev-create.chroot.sh kerndev-build kerndev-install pacstrap \
+check_exists ${DIR}/kerndev-create.chroot.sh ${DIR}/kerndev-build ${DIR}/kerndev-install pacstrap \
 	    truncate mkfs.ext4 arch-chroot
 
 [ ! -z $USE_EXISTING_IMAGE ] && [ ! -f $KERNDEV_PATH/rootfs.img ] && \
 	fatal "can't find existing rootfs image"
 
-chroot_script_path=$(which kerndev-create.chroot.sh)
+chroot_script_path=$(which ${DIR}/kerndev-create.chroot.sh)
 
 # So many commands need sudo, so just force the issue.
 elevate $@
@@ -117,10 +119,10 @@ trap - EXIT
 echo Building linux...
 # Install separately so we can update user on progress separately, also this
 # means we can run as the user and thus not write root owned files!
-NO_DONE=y DONT_INSTALL=y sudo -E -u $SUDO_USER kerndev-build
+NO_DONE=y DONT_INSTALL=y sudo -E -u $SUDO_USER ${DIR}/kerndev-build
 
 echo Installing modules into image and generating initrd...
-NO_DONE=y kerndev-install
+NO_DONE=y ${DIR}/kerndev-install
 
 pop
 

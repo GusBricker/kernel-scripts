@@ -1,4 +1,7 @@
 #!/bin/bash
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 set -e; set -o pipefail
 
 # Author: Jakub Klinkovský (Lahwaacz)
@@ -57,7 +60,7 @@ function create_br()
 
 		# Xyne's excellent script to launch NAT
 		echo "Starting NAT"
-		kerndev-nat-launch.sh "$wan_nic" "$1" up
+		${DIR}/kerndev-nat-launch.sh "$wan_nic" "$1" up
 	fi
 }
 
@@ -68,7 +71,7 @@ function del_br()
 	if bridge_is_empty "$1"; then
 		# Xyne's excellent script to kill NAT
 		echo "Stopping NAT"
-		kerndev-nat-launch.sh "$wan_nic" "$1" down
+		${DIR}/kerndev-nat-launch.sh "$wan_nic" "$1" down
 
 		echo "Deleting bridge interface '$1'"
 		ip link set dev "$1" down

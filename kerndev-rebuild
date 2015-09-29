@@ -1,5 +1,8 @@
 #!/bin/bash
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 set -e; set -o pipefail
 
 echo Forcing rebuild of kernel...
-REBUILD=y source kerndev-build $@
+REBUILD=y source ${DIR}/kerndev-build $@

@@ -1,5 +1,8 @@
 #!/bin/bash
-set -e; set -o pipefail; source kerndev-shared.sh
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+set -e; set -o pipefail; source ${DIR}/kerndev-shared.sh
 
 # NOTE: $cross_compile_prefix will vary depending on your cross-compiler setup.
 
@@ -48,7 +51,7 @@ if [ ! -z "$REBUILD" ] || [ ! -f .config ]; then
 	mak defconfig
 fi
 
-source kerndev-config
+source ${DIR}/kerndev-config
 # Set any new options implied by kerndev-config to default.
 mak olddefconfig
 
@@ -57,7 +60,7 @@ echo Compiling kernel...
 mak -j$((cores + 1))
 
 if [ -z "$DONT_INSTALL" ]; then
-	NO_DONE=y sudo -E kerndev-install $target_arch
+	NO_DONE=y sudo -E ${DIR}/kerndev-install $target_arch
 fi
 
 pop
