@@ -57,7 +57,7 @@ mak modules_install INSTALL_MOD_PATH=/mnt/
 if [ "$target_arch" = "x86_64" ]; then
 	echo Installing initrd image...
 	mkinitcpio -r /mnt -k $kernel_image_path -g $initrd_image_path \
-	    &>/dev/null
+	    &>/dev/$out
 fi
 
 if [ -z "$USE_EXISTING_IMAGE" ] && [ ! -z "$ENABLE_GCOV" ]; then

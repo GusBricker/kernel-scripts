@@ -2,6 +2,9 @@
 set -e; set -o pipefail
 
 alias rm="rm --one-file-system --preserve-root"
+
+[ -z $VERBOSE ] && export out="null" || export out="tty"
+
 # Displays parameteters with command name prepended, outputted to stderr.
 # $@: message to display.
 function error()
@@ -95,8 +98,6 @@ function give_back()
 # $@: make arguments.
 function mak()
 {
-	[ -z $VERBOSE ] && out="null" || out="tty"
-
 	make $make_opts "$@" >/dev/$out
 }
 
