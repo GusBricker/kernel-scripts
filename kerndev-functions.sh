@@ -103,7 +103,7 @@ function check_unmount()
 # $1: Image file to mount, in $KERNDEV_PATH.
 function mount_image()
 {
-	mount -o loop $KERNDEV_PATH/$1 /mnt
+    check_mount "$KERNDEV_PATH/$1" "${ROOTFS_PATH}" -o loop
 }
 
 # Attempt to unmount ${ROOTFS_PATH}, ignore any failures.
