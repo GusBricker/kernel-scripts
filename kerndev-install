@@ -56,7 +56,18 @@ mak modules_install INSTALL_MOD_PATH=${ROOTFS_PATH}/
 # No initrd for non-x86_64, yet.
 if [ "$target_arch" = "x86_64" ]; then
 	echo Installing initrd image...
-	mkinitcpio -r /mnt -k $kernel_image_path -g $initrd_image_path \
+    push ${LINUX_DEV_PATH}
+    linux_version=$(make kernelversion)
+    pop
+    dracut --gzip \
+           --kver "${linux_version}" \
+           --add-drivers "iscsi_target_mod target_core_mod" \
+           --add-drivers "target_core_file target_core_iblock" \
+           --add-drivers "configfs" \
+           --install "ps grep netstat" \
+           --no-hostonly --no-hostonly-cmdline \
+           --force \
+           --modules "busybox bash base shutdown network ifcfg" "${initrd_image_path}" \
 	    &>/dev/$out
 fi
 
