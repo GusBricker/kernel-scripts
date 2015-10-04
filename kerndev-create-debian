@@ -1,0 +1,106 @@
+#!/bin/bash
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+set -e; set -o pipefail; source ${DIR}/kerndev-shared.sh
+
+# TODO: Duplicates kerndev-create, lots of copy-pasta, de-duplicate!!
+
+target_arch="$(uname -m)"
+debootstrap_arch=${target_arch}
+
+if [[ "${target_arch}" == "x86_64" ]]
+then
+    debootstrap_arch="amd64"
+fi
+
+rootfs="rootfs_${target_arch}.img"
+chroot_path="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+
+# Functions.
+
+function cleanup()
+{
+	rm -f ${ROOTFS_PATH}/usr/bin/qemu-$target_arch-static
+
+    unmount_fs
+	unmount
+}
+
+# So many commands need sudo, so just force the issue.
+elevate "$@"
+
+# Sanity checks.
+check_exists debootstrap qemu-system-$target_arch qemu-$target_arch-static
+
+[ ! -z $USE_EXISTING_IMAGE ] && [ ! -f $KERNDEV_PATH/$rootfs ] && \
+	fatal "can't find existing rootfs image"
+
+chroot_script_path=$(which ${DIR}/kerndev-create-foreign.chroot.sh)
+
+unmount_fs
+unmount
+
+mkdir -p $ROOTFS_PATH
+mkdir -p $KERNDEV_PATH
+
+push_kerndev
+
+if [ -z "$USE_EXISTING_IMAGE" ]; then
+	echo Creating and formatting rootfs image file...
+	rm -f $rootfs
+	truncate -s $IMAGE_SIZE $rootfs
+	mkfs.ext4 -q $rootfs
+fi
+
+mount_image $rootfs
+trap cleanup EXIT
+
+if [ -z "$USE_EXISTING_IMAGE" ]; then
+	echo "Downloading and installing first stage rootfs into image..."
+
+	debootstrap --arch=$debootstrap_arch --variant=minbase \
+		--include=$DEBIAN_PACKAGES $DEBIAN_VERSION "${ROOTFS_PATH}" $DEBIAN_MIRROR \
+		>/dev/$out
+fi
+
+echo Running pre-chroot tasks...
+cp $chroot_script_path ${ROOTFS_PATH}/chroot.sh
+# Copy ssh keys + config.
+cp -R /home/$SUDO_USER/.ssh ${ROOTFS_PATH}/
+
+# Git + qemu/arm don't play nice, so clone oh-my-zsh here.
+rm -rf ${ROOTFS_PATH}/oh-my-zsh && mkdir ${ROOTFS_PATH}/oh-my-zsh
+git clone --depth=1 https://github.com/robbyrussell/oh-my-zsh.git ${ROOTFS_PATH}/oh-my-zsh &>/dev/null
+
+echo Running chroot-ed rootfs image config script...
+do_chroot ${ROOTFS_PATH} /chroot.sh $SUDO_USER $ROOT_PASSWORD
+ls -l ${ROOTFS_PATH}
+rm ${ROOTFS_PATH}/chroot.sh
+ls -l ${ROOTFS_PATH}
+
+cat >${ROOTFS_PATH}/etc/resolv.conf <<EOF
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+EOF
+
+if [ ! -z "$ACCESS_CHROOT" ]; then
+	echo Entering chroot shell...
+	do_chroot ${ROOTFS_PATH} env -i TERM=ansi PATH=$chroot_path /bin/bash
+	echo ...chroot shell done!
+fi
+
+echo Building linux...
+# Install separately so we can update user on progress separately + not write
+# root owned files!
+NO_DONE=y DONT_INSTALL=y sudo -E -u $SUDO_USER ${DIR}/kerndev-build $target_arch
+
+echo Installing modules into image and generating initrd...
+NO_DONE=y source ${DIR}/kerndev-install $target_arch
+
+pop
+
+# Pass ownership back to the user.
+give_back $KERNDEV_PATH
+
+say_done

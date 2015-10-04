@@ -186,4 +186,24 @@ function kdisable()
 {
 	config disable "$@"
 }
+
+# Automatically mounts dev, proc, sysfs
+# then enters chroot
+function do_chroot()
+{
+    local chroot_path=$1
+    shift
+
+    check_mount "/proc" "${chroot_path}/proc" "--rbind" || fatal failed to mount proc
+    check_mount "/sys" "${chroot_path}/sys" "--rbind" || fatal failed to mount sys
+    check_mount "/dev" "${chroot_path}/dev" "--rbind" || fatal failed to mount dev
+
+    chroot "${chroot_path}" "$@"
+    chroot_ret=$?
+
+    if [ ${chroot_ret} -ne 0 ]
+    then
+        fatal chroot failed
+    fi
 }
+
