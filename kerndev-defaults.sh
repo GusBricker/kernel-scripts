@@ -13,6 +13,7 @@ debian_version_default=jessie
 image_size_default=30G
 kerndev_path_default=$HOME/images
 linux_dev_path_default=$HOME/linux
+rootfs_path_default=$HOME/rootfs
 qemu_cores_default=4
 qemu_ram_default=4G
 
@@ -32,6 +33,7 @@ LINUX_DEV_PATH=${LINUX_DEV_PATH:-$linux_dev_path_default}
 # QEMU settings.
 QEMU_CORES=${QEMU_CORES:-$qemu_cores_default}
 QEMU_RAM=${QEMU_RAM:-$qemu_ram_default}
+ROOTFS_PATH=${ROOTFS_PATH:-$rootfs_path_default}
 
 # Configuration options which default to being unset, included here for
 # documentation:-

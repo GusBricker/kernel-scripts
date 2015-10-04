@@ -68,20 +68,59 @@ function check_exists()
 	done
 }
 
-# Loop mount image file into /mnt.
+# Checks if mounted already
+# $1: source
+# $2: destination
+# $rest: args for mount
+function check_mount()
+{
+    local src=$1
+    shift
+    local dst=$1
+    shift
+
+    if ! grep -qs "$dst" /proc/mounts
+    then
+        mount "$@" "$src" "$dst" &>/dev/$out
+    fi
+}
+
+# Checks if mounted already
+# $1: destination
+# $rest: args for mount
+function check_unmount()
+{
+    local dst=$1
+    shift
+
+    if grep -qs "$dst" /proc/mounts
+    then
+        umount "$@" "$dst" &>/dev/$out
+    fi
+}
+
+# Loop mount image file into ${ROOTFS_PATH}.
 # $1: Image file to mount, in $KERNDEV_PATH.
 function mount_image()
 {
 	mount -o loop $KERNDEV_PATH/$1 /mnt
 }
 
-# Attempt to unmount /mnt, ignore any failures.
+# Attempt to unmount ${ROOTFS_PATH}, ignore any failures.
 function unmount()
 {
 	# This _can_ be dangerous, theoretically, but this is usually shortly
 	# followed by an attempt at a mount, which if the unmount fails, will
 	# also fail and end the script with an error.
-	umount /mnt &>/dev/null || true
+	umount ${ROOTFS_PATH} &>/dev/null || true
+}
+
+# Attempt to unmount proc, sys, dev and ignore any failures.
+function unmount_fs()
+{
+    check_unmount "$ROOTFS_PATH/proc" "-l"
+    check_unmount "$ROOTFS_PATH/sys" "-l"
+    check_unmount "$ROOTFS_PATH/dev" "-l"
 }
 
 # Give ownership of the specified directory to the user (assumes $SUDO_USER is

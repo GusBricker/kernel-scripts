@@ -38,7 +38,7 @@ chroot_path="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 function cleanup()
 {
 	[ -f $binfmt_path/$target_arch ] && echo -1 > $binfmt_path/$target_arch
-	rm -f /mnt/usr/bin/qemu-$target_arch-static
+	rm -f ${ROOTFS_PATH}/usr/bin/qemu-$target_arch-static
 	unmount
 }
 
@@ -74,41 +74,41 @@ if [ -z "$USE_EXISTING_IMAGE" ]; then
 	echo "Downloading and installing first stage rootfs into image..."
 
 	debootstrap --arch=$debootstrap_arch --variant=minbase --foreign  \
-		--include=$DEBIAN_PACKAGES $DEBIAN_VERSION /mnt $DEBIAN_MIRROR \
+		--include=$DEBIAN_PACKAGES $DEBIAN_VERSION ${ROOTFS_PATH} $DEBIAN_MIRROR \
 		>/dev/null
 fi
 
 echo Enabling binfmt for chroot...
-cp $(which qemu-${target_arch}-static) /mnt/usr/bin/
+cp $(which qemu-${target_arch}-static) ${ROOTFS_PATH}/usr/bin/
 echo "$binfmt_sig" > $binfmt_path/register
 
 if [ -z "$USE_EXISTING_IMAGE" ]; then
 	echo Entering chroot, downloading and installing second stage rootfs into image...
-	chroot /mnt /debootstrap/debootstrap --second-stage >/dev/null
+	chroot ${ROOTFS_PATH} /debootstrap/debootstrap --second-stage >/dev/null
 fi
 
 echo Running pre-chroot tasks...
-cp $chroot_script_path /mnt/chroot.sh
+cp $chroot_script_path ${ROOTFS_PATH}/chroot.sh
 # Copy ssh keys + config.
-cp -R /home/$SUDO_USER/.ssh /mnt/
+cp -R /home/$SUDO_USER/.ssh ${ROOTFS_PATH}/
 
 # Git + qemu/arm don't play nice, so clone oh-my-zsh here.
-rm -rf /mnt/oh-my-zsh && mkdir /mnt/oh-my-zsh
-git clone --depth=1 https://github.com/robbyrussell/oh-my-zsh.git /mnt/oh-my-zsh &>/dev/null
+rm -rf ${ROOTFS_PATH}/oh-my-zsh && mkdir ${ROOTFS_PATH}/oh-my-zsh
+git clone --depth=1 https://github.com/robbyrussell/oh-my-zsh.git ${ROOTFS_PATH}/oh-my-zsh &>/dev/null
 
 echo Running chroot-ed rootfs image config script...
-arch-chroot /mnt /chroot.sh $SUDO_USER $ROOT_PASSWORD
-rm /mnt/chroot.sh
+arch-chroot ${ROOTFS_PATH} /chroot.sh $SUDO_USER $ROOT_PASSWORD
+rm ${ROOTFS_PATH}/chroot.sh
 # arch-chroot mounts the system's /etc/resolv.conf, so do this outside the
 # chroot.
-cat >/mnt/etc/resolv.conf <<EOF
+cat >${ROOTFS_PATH}/etc/resolv.conf <<EOF
 nameserver 8.8.8.8
 nameserver 8.8.4.4
 EOF
 
 if [ ! -z "$ACCESS_CHROOT" ]; then
 	echo Entering chroot shell...
-	arch-chroot /mnt env -i TERM=ansi PATH=$chroot_path /bin/bash
+	arch-chroot ${ROOTFS_PATH} env -i TERM=ansi PATH=$chroot_path /bin/bash
 	echo ...chroot shell done!
 fi
 

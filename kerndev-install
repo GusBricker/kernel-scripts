@@ -50,8 +50,8 @@ mount_image $rootfs
 trap unmount EXIT
 
 echo Installing headers and modules...
-mak headers_install INSTALL_HDR_PATH=/mnt/usr/
-mak modules_install INSTALL_MOD_PATH=/mnt/
+mak headers_install INSTALL_HDR_PATH=${ROOTFS_PATH}/usr/
+mak modules_install INSTALL_MOD_PATH=${ROOTFS_PATH}/
 
 # No initrd for non-x86_64, yet.
 if [ "$target_arch" = "x86_64" ]; then
@@ -64,7 +64,7 @@ if [ -z "$USE_EXISTING_IMAGE" ] && [ ! -z "$ENABLE_GCOV" ]; then
 	# We need to copy the linux source code to be able to gcov it.
 	echo "Copying linux source to image (gcov)..."
 
-	image_linux_dev_path=/mnt/home/$SUDO_USER/linux
+	image_linux_dev_path=${ROOTFS_PATH}/home/$SUDO_USER/linux
 
 	rm -rf $image_linux_dev_path
 	mkdir $image_linux_dev_path
