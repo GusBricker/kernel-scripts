@@ -56,9 +56,14 @@ mak modules_install INSTALL_MOD_PATH=${ROOTFS_PATH}/
 # No initrd for non-x86_64, yet.
 if [ "$target_arch" = "x86_64" ]; then
 	echo Installing initrd image...
-    push ${LINUX_DEV_PATH}
-    linux_version=$(make kernelversion)
-    pop
+
+    # Bit hacky, but as we are building a dev version of the kernel
+    # the modules path is often prefixed with '+' which dracut cant figure out.
+    modules_path="${ROOTFS_PATH}"
+    linux_version=$(ls -1 "${ROOTFS_PATH}/lib/modules/")
+    echo "Modules path: ${modules_path}"
+    echo "Linux Version: ${linux_version}"
+
     dracut --gzip \
            --kver "${linux_version}" \
            --add-drivers "iscsi_target_mod target_core_mod" \
@@ -67,7 +72,8 @@ if [ "$target_arch" = "x86_64" ]; then
            --install "ps grep netstat" \
            --no-hostonly --no-hostonly-cmdline \
            --force \
-           --modules "busybox bash base shutdown network ifcfg" "${initrd_image_path}" \
+           --kmoddir "${modules_path}/" \
+           --modules "busybox bash base shutdown network ifcfg lvm udev-rules" "${initrd_image_path}" \
 	    &>/dev/$out
 fi
 
