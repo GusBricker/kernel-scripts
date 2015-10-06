@@ -62,7 +62,7 @@ x86_64)
 
 	arch_opts="-enable-kvm
 	-cpu host
-	-drive file=$rootfs_image_path,if=virtio,cache=none,format=raw
+	-drive file=$rootfs_image_path,id=vda,if=virtio,cache=none,format=raw
 	-boot once=c
 	-initrd $initrd_image_path"
 	arch_append="console=ttyS0"
@@ -76,7 +76,7 @@ x86_64)
 esac
 
 shared_opts="-nographic -m $QEMU_RAM -smp $QEMU_CORES -s"
-shared_append="root=/dev/vda rw earlyprintk=serial"
+shared_append="root=/dev/vda rw earlyprintk=serial rootfstype=auto"
 
 echo "Setting up qemu tap interface"
 ${DIR}/kerndev-qemu-tap-helper.sh $SUDO_USER $tap_nic $br_nic $wan_nic up
