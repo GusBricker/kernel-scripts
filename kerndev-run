@@ -35,16 +35,15 @@ elevate "$@"
 [ -z "$SUDO_USER" ] && fatal Please run this using sudo!
 
 qemu=qemu-system-${target_arch}
+rootfs_image_path=$KERNDEV_PATH/rootfs_${target_arch}.img
 
 case $target_arch in
 arm)
 	# Use aarch64 + backwards compatibility.
 	qemu=qemu-system-aarch64
-	rootfs_image_path=$KERNDEV_PATH/rootfs_arm.img
 	;&
 aarch64)
 	kernel_image_path=$LINUX_DEV_PATH/arch/arm64/boot/Image
-	rootfs_image_path=${rootfs_image_path:-$KERNDEV_PATH/rootfs_aarch64.img}
 
 	arch_opts="-machine virt
 	 -cpu cortex-a57
@@ -60,7 +59,6 @@ aarch64)
 x86_64)
 	kernel_image_path=$LINUX_DEV_PATH/arch/x86/boot/bzImage
 	initrd_image_path=$KERNDEV_PATH/init.img
-	rootfs_image_path=$KERNDEV_PATH/rootfs.img
 
 	arch_opts="-enable-kvm
 	-cpu host
