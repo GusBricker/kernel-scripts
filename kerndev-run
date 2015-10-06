@@ -78,8 +78,10 @@ esac
 shared_opts="-nographic -m $QEMU_RAM -smp $QEMU_CORES -s"
 shared_append="root=/dev/vda rw earlyprintk=serial"
 
+echo "Setting up qemu tap interface"
 ${DIR}/kerndev-qemu-tap-helper.sh $SUDO_USER $tap_nic $br_nic $wan_nic up
 trap "${DIR}/kerndev-qemu-tap-helper.sh $SUDO_USER $tap_nic $br_nic $wan_nic down" EXIT
 
+echo "Starting qemu"
 $qemu $shared_opts $arch_opts $arch_net_opts $QEMU_CUSTOM_SETTINGS \
 	-kernel $kernel_image_path -append "$shared_append $arch_append"
