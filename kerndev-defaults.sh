@@ -10,9 +10,9 @@ debian_packages_default="netbase,ifupdown,net-tools,dhcpcd5,iproute,wget,sudo,\
 zsh,curl,ca-certificates,man-db,git,pciutils,usbutils,iputils-ping,less,nano,\
 kmod"
 debian_version_default=jessie
-image_size_default=30G
+image_size_default=10G
 kerndev_path_default=$HOME/images
-linux_dev_path_default=$HOME/linux
+linux_dev_path_default=$HOME/projects/linux
 rootfs_path_default=$HOME/rootfs
 qemu_cores_default=4
 qemu_ram_default=4G
