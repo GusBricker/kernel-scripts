@@ -75,9 +75,7 @@ git clone --depth=1 https://github.com/robbyrussell/oh-my-zsh.git ${ROOTFS_PATH}
 
 echo Running chroot-ed rootfs image config script...
 do_chroot ${ROOTFS_PATH} /chroot.sh $SUDO_USER $ROOT_PASSWORD
-ls -l ${ROOTFS_PATH}
 rm ${ROOTFS_PATH}/chroot.sh
-ls -l ${ROOTFS_PATH}
 
 cat >${ROOTFS_PATH}/etc/resolv.conf <<EOF
 nameserver 8.8.8.8
