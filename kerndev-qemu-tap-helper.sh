@@ -86,9 +86,9 @@ function br_add_iface()
 {
 	echo "Adding interface '$2' to bridge '$1'"
 	ip link set dev "$2" promisc on up
-	ip addr flush dev "$2" scope host #&>/dev/null
-	ip addr flush dev "$2" scope site #&>/dev/null
-	ip addr flush dev "$2" scope global #&>/dev/null
+	ip addr flush dev "$2" scope host #&>/dev/$out
+	ip addr flush dev "$2" scope site #&>/dev/$out
+	ip addr flush dev "$2" scope global #&>/dev/$out
 	#brctl addif $1 $2
 	ip link set dev "$2" master "$1"
 	# skip forwarding delay
