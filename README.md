@@ -67,6 +67,18 @@ user-runnable, but are instead ran from other scripts.
   line length.
 * `kerndev-check-all` - Runs `checkpatch.pl` against the specified files.
 
+### Dependancies
+
+* debootstrap
+* dracut
+* dracut-network
+* qemu-system-x86
+* qemu-user-static
+* bridge-utils
+* [idemptables](http://xyne.archlinux.ca/projects/idemptables/src/idemptables-2012.tar.xz)
+* sh must be a symlink to bash.
+
+
 [qemu]:http://wiki.qemu.org/Main_Page
 
 [lahwaacz]:https://github.com/lahwaacz
